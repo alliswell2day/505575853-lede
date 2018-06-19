@@ -42,13 +42,25 @@ start()
   local vt_safe_dns_port=`uci get v2ray.@v2ray[0].safe_dns_port 2>/dev/null`
   local vt_safe_dns_tcp=`uci get v2ray.@v2ray[0].safe_dns_tcp 2>/dev/null`
   local vt_proxy_mode=`uci get v2ray.@v2ray[0].proxy_mode`
-  local vt_server_addr='uci get v2ray.@v2ray[0].address'
+  local vt_server_addr=`uci get v2ray.@v2ray[0].address`
   local cron_mode=`uci get v2ray.@v2ray[0].cron_mode 2>/dev/null`
   local vt_gfwlist=`__gfwlist_by_mode $vt_proxy_mode`
   local use_conf_file=`uci get v2ray.@v2ray[0].use_conf_file 2>/dev/null`
   local conf_file_path=`uci get v2ray.@v2ray[0].conf_file_path 2>/dev/null`
   local conf_file_type=`uci get v2ray.@v2ray[0].conf_file_type 2>/dev/null`
+  local monitor=`uci get v2ray.@v2ray[0].monitor 2>/dev/null`
+  local bin_dir=`uci get v2ray.@v2ray[0].bin_dir 2>/dev/null` 
+ 
+ 	[ "$vt_enabled" = "0" ] && exit
+ 	mkdir -p $bin_dir/etc
 
+#	ln -s /etc/gfwlist/china-banned /etc/v2ray/base-gfwlist.txt
+
+	[ ! -f "$bin_dir/etc/v2ray/v2ray" ] && {
+		[ -h "/usr/bin/v2ray/v2ray" ] && [ ! -f "$bin_dir/etc/v2ray/v2ray" ] && rm -rf /usr/bin/v2ray
+		[ ! -h "/usr/bin/v2ray/v2ray" ] && [ ! -f "/usr/bin/v2ray/v2ray" ] && download_binary
+		[ ! -h "/usr/bin/v2ray/v2ray" ] && [ ! -f "/usr/bin/v2ray/v2ray" ] && logger -t V2ray 'Download v2ray failed, please retry.' && exit 0
+	}
 
 	[ -f /etc/init.d/pdnsd ] && /etc/init.d/pdnsd disable 2>/dev/null
 
@@ -90,16 +102,16 @@ start()
 	add_rule
 
 	# -----------------------------------------------------------------
-	mkdir -p /var/etc/dnsmasq-go.d
+	mkdir -p /var/dnsmasq.d
 	###### Anti-pollution configuration ######
 	if [ -n "$vt_safe_dns" ]; then
 		if [ "$vt_safe_dns_tcp" = 1 ]; then
 			start_pdnsd "$vt_safe_dns"
 			awk -vs="127.0.0.1#$PDNSD_LOCAL_PORT" '!/^$/&&!/^#/{printf("server=/%s/%s\n",$0,s)}' \
-				/etc/gfwlist/$vt_gfwlist > /var/etc/dnsmasq-go.d/01-pollution.conf
+				/etc/gfwlist/$vt_gfwlist > /var/dnsmasq.d/01-pollution.conf
 		else
 			awk -vs="$vt_safe_dns#$vt_safe_dns_port" '!/^$/&&!/^#/{printf("server=/%s/%s\n",$0,s)}' \
-				/etc/gfwlist/$vt_gfwlist > /var/etc/dnsmasq-go.d/01-pollution.conf
+				/etc/gfwlist/$vt_gfwlist > /var/dnsmasq.d/01-pollution.conf
 		fi
 	else
 		echo "WARNING: Not using secure DNS, DNS resolution might be polluted if you are in China."
@@ -109,38 +121,34 @@ start()
 	case "$vt_proxy_mode" in
 		M|V)
 			awk '!/^$/&&!/^#/{printf("ipset=/%s/'"$vt_gfwlist"'\n",$0)}' \
-				/etc/gfwlist/$vt_gfwlist > /var/etc/dnsmasq-go.d/02-ipset.conf
+				/etc/gfwlist/$vt_gfwlist > /var/dnsmasq.d/02-ipset.conf
 			;;
 	esac
 
 	# -----------------------------------------------------------------
 	###### Restart main 'dnsmasq' service if needed ######
-	if ls /var/etc/dnsmasq-go.d/* >/dev/null 2>&1; then
-		mkdir -p /tmp/dnsmasq.d
-		cat > /tmp/dnsmasq.d/dnsmasq-go.conf <<EOF
-conf-dir=/var/etc/dnsmasq-go.d
-EOF
+	if ls /var/dnsmasq.d/* >/dev/null 2>&1; then
+		mkdir -p /var/dnsmasq.d
+		grep "conf-dir=/var/dnsmasq.d" /etc/dnsmasq.conf ||echo 'conf-dir=/var/dnsmasq.d' >> /etc/dnsmasq.conf
+#		cat > /var/dnsmasq.d/dnsmasq-go.conf <<EOF
+#conf-dir=/var/dnsmasq.d
+#EOF
 		/etc/init.d/dnsmasq restart
-
-
 	fi
-	add_cron
+	[ "$monitor" = "1" ] && add_cron
 }
 
 stop()
 {
 
 	# -----------------------------------------------------------------
-	rm -rf /var/etc/dnsmasq-go.d
-	if [ -f /tmp/dnsmasq.d/dnsmasq-go.conf ]; then
-		rm -f /tmp/dnsmasq.d/dnsmasq-go.conf
-		/etc/init.d/dnsmasq restart
-	fi
+	rm -rf /var/dnsmasq.d
+	/etc/init.d/dnsmasq restart
 
 	stop_pdnsd
 
 	# --STOP IPv4 firewall---------------------------------------------------------------
-  del_rule
+	del_rule
 
 	# -----------------------------------------------------------------
 	if [ -f $SS_REDIR_PIDFILE ]; then
@@ -149,12 +157,94 @@ stop()
 	fi
 	killall -9 v2ray 2>/dev/null
 	del_cron
+	uci set v2ray.v2ray.more=0
+	uci commit v2ray
 }
+
+UpdateApp() {
+	for a in $(opkg print-architecture | awk '{print $2}'); do
+		case "$a" in
+			all|noarch)
+				;;
+			aarch64_armv8-a|arm_arm1176jzf-s_vfp|arm_arm926ej-s|arm_cortex-a15_neon-vfpv4|arm_cortex-a5|arm_cortex-a53_neon-vfpv4|arm_cortex-a7_neon-vfpv4|arm_cortex-a8_vfpv3|arm_cortex-a9|arm_cortex-a9_neon|arm_cortex-a9_vfpv3|arm_fa526|arm_mpcore|arm_mpcore_vfp|arm_xscale|armeb_xscale)
+				ARCH="arm"
+				;;
+			i386_pentium|i386_pentium4)
+				ARCH="32"
+				;;
+			ar71xx|mips_24kc|mips_mips32|mips64_octeon)
+				ARCH="mips"
+				;;
+			mipsel_24kc|mipsel_24kec_dsp|mipsel_74kc|mipsel_mips32|mipsel_1004kc_dsp)
+				ARCH="mipsle"
+				;;
+			x86_64)
+				ARCH="64"
+				;;
+			*)
+				exit 0
+				;;
+		esac
+	done
+}
+
+download_binary(){
+	version_g=$(uci get v2ray.v2ray.version_g)
+	version_d=$(uci get v2ray.v2ray.version_d)
+	version_c=$(uci get v2ray.v2ray.version_c)
+	dl_mod=$(uci get v2ray.v2ray.dl_mod)
+	c_url=$(uci get v2ray.v2ray.c_url)
+	bin_dir=$(uci get v2ray.v2ray.bin_dir)
+
+	echo `date` "开始下载v2ray二进制文件..."
+	UpdateApp
+
+	cd $bin_dir/etc 
+
+	if [ $dl_mod = "git" ]; then
+		version="$version_g"
+		down_url=https://github.com/v2ray/v2ray-core/releases/download/v"$version"/v2ray-linux-"$ARCH".zip
+	elif [ $dl_mod = "blog" ]; then
+		version="$version_d"
+		down_url=https://www.myopenwrt.org/wp-content/uploads/2018/04/v2ray-linux-"$ARCH"-v"$version".zip
+	else
+		version="$version_c"
+		down_url="$c_url"/v2ray-linux-"$ARCH".zip
+	fi
+
+	local a=0
+	while [ ! -f $bin_dir/etc/v2ray-linux-"$ARCH"*.zip ]; do
+		[ $a = 6 ] && exit
+		/usr/bin/wget -T10 $down_url
+		sleep 2
+		let "a = a + 1"
+	done
+	killall -9 pidof openssl
+
+	unzip v2ray-linux-"$ARCH"*.zip
+	mv $bin_dir/etc/v2ray-v"$version"-linux-"$ARCH"/ $bin_dir/etc/v2ray
+	rm -rf $bin_dir/etc/v2ray*.zip
+	[ -h "/usr/bin/v2ray" ] && rm -rf /usr/bin/v2ray
+	ln -s $bin_dir/etc/v2ray/ /usr/bin/
+
+	if [ -f "/usr/bin/v2ray/v2ray" ]; then
+		chmod +x /usr/bin/v2ray/v2*  && echo `date` "成功下载v2ray二进制文件"
+	else
+		echo `date` "下载v2ray二进制文件失败，请重试！"
+	fi
+}
+
 
 restart()
 {
 	KEEP_GFWLIST=Y
 	stop
+	start
+}
+
+boot() {
+	local delay=`uci get v2ray.@v2ray[0].delay 2>/dev/null`
+	sleep $delay
 	start
 }
 
@@ -331,6 +421,9 @@ add_rule()
 		S)
 			iptables -t nat -A v2ray_pre -m set --match-set $vt_np_ipset dst -j RETURN
 			iptables -t nat -I OUTPUT -p tcp -m multiport --dports 80,443 -m set ! --match-set $vt_np_ipset dst -j REDIRECT --to $SS_REDIR_PORT
+			# Add line below to prevent traffic of v2ray from redirecting to itself.
+			iptables -t nat -I OUTPUT -d $vt_server_addr -j RETURN
+
 			;;
 		M)
 			ipset -! create $vt_gfwlist hash:ip maxelem 65536 2>/dev/null
@@ -363,7 +456,10 @@ del_rule()
 
 	iptables -t nat -D OUTPUT -p tcp -m multiport --dports 80,443 -m set --match-set china-banned dst -j REDIRECT --to $SS_REDIR_PORT 2>/dev/null
 	iptables -t nat -D OUTPUT -p tcp -m multiport --dports 80,443 -m set ! --match-set $vt_np_ipset dst -j REDIRECT --to $SS_REDIR_PORT 2>/dev/null
+	# Add line below to delete the rule preventing traffic of v2ray from redirecting to itself.
+	iptables -t nat -D OUTPUT -d $vt_server_addr -j RETURN 2>/dev/null
 
+	
 	/usr/bin/ip rule del fwmark 0x01/0x01 table 100
 	/usr/bin/ip route del local 0.0.0.0/0 dev lo table 100
 	if iptables -t mangle -F gameboost 2>/dev/null; then
