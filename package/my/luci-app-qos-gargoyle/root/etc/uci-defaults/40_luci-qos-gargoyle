@@ -7,5 +7,8 @@ uci -q batch <<-EOF >/dev/null
 	commit ucitrack
 EOF
 
+/etc/init.d/qos_gargoyle stop
+/etc/init.d/qos_gargoyle disable
+
 rm -rf /tmp/luci-modulecache /tmp/luci-indexcache
 exit 0

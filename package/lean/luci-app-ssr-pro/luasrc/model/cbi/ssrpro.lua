@@ -28,6 +28,7 @@ switch.rmempty = false
 proxy_mode = s:taboption("basic",ListValue, "proxy_mode", translate("Proxy Mode"))
 proxy_mode:value("M", translate("Base on GFW-List Auto Proxy Mode(Recommend)"))
 proxy_mode:value("S", translate("Bypassing China Manland IP Mode(Be caution when using P2P download！)"))
+proxy_mode:value("O", translate("Oversea IP Route Mode"))
 proxy_mode:value("G", translate("Global Mode"))
 proxy_mode:value("V", translate("Overseas users watch China video website Mode"))
 

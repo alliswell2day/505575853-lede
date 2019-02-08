@@ -37,9 +37,20 @@ dns.default = 0
 dns.rmempty = false
 dns.description = translate("Enable DNS Cache Acceleration and anti ISP DNS pollution")
 
+o = s:option(ListValue, "dnscache_enable", translate("Resolve Dns Mode"))
+o:value("1", translate("Use Pdnsd query and cache"))
+o:value("2", translate("Use dnsforwarder query and cache"))
+o.default = 1
+o:depends("dns", 1)
+
 o = s:option(Value, "dns_server", translate("Upsteam DNS Server"))
-o.default = "1.0.0.1,1.1.1.1,1.2.4.8,4.2.2.1,4.2.2.2,8.8.4.4,8.8.8.8,9.9.9.9,114.114.114.114,114.114.115.115,119.28.28.28,119.29.29.29,180.76.76.76,210.2.4.8,208.67.220.220,208.67.222.222,223.5.5.5,223.6.6.6,240c::6644,240c::6666,2400:da00::6666,2001:4860:4860::8844,2001:4860:4860::8888,2606:4700:4700::1001,2606:4700:4700::1111"
+o.default = "114.114.114.114,114.114.115.115,223.5.5.5,223.6.6.6,180.76.76.76,119.29.29.29,119.28.28.28,1.2.4.8,210.2.4.8"
 o.description = translate("Muitiple DNS server can saperate with ','")
+o:depends("dns", 1)
+
+o = s:option(Value, "ipv6dns_server", translate("Upsteam IPV6 DNS Server"))
+o.default = "2001:4860:4860::8888,2001:4860:4860::8844,2001:2001::1111,2001:2001::1001,2400:da00::6666,240C::6666,240C::6644"
+o.description = translate("Muitiple IPV6 DNS server can saperate with ','")
 o:depends("dns", 1)
 
 return m

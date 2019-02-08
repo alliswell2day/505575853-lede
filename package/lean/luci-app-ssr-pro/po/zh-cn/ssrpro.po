@@ -25,6 +25,9 @@ msgstr "绕过中国大陆IP地址(P2P 下载慎用！)"
 msgid "Global Mode"
 msgstr "全局代理"
 
+msgid "Oversea IP Route Mode"
+msgstr "海外用户回国IP路由模式"
+
 msgid "Overseas users watch China video website Mode"
 msgstr "海外用户回国看视频"
 

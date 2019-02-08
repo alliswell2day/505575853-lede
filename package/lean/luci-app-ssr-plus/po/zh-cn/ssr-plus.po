@@ -226,6 +226,9 @@ msgstr "绕过中国大陆IP模式"
 msgid "GFW List Mode"
 msgstr "GFW列表模式"
 
+msgid "Oversea Mode"
+msgstr "海外用户回国模式"
+
 msgid "Router Proxy"
 msgstr "路由器访问控制"
 
@@ -314,6 +317,9 @@ msgstr "自动切换检查周期（秒）"
 msgid "Check timout(second)"
 msgstr "切换检查超时时间（秒）"
 
+msgid "Enable Process Deamon"
+msgstr "启用进程自动守护"
+
 msgid "Advertising Data"
 msgstr "【广告屏蔽】数据库"
 
@@ -380,6 +386,15 @@ msgstr "访问国外域名DNS服务器"
 msgid "Use Pdnsd tcp query and cache"
 msgstr "使用PDNSD TCP查询并缓存"
 
+msgid "Use Pdnsd udp query and cache"
+msgstr "使用PDNSD UDP查询并缓存"
+
+msgid "Use dnsforwarder tcp query and cache"
+msgstr "使用dnsforwarder TCP查询并缓存"
+
+msgid "Use dnsforwarder udp query and cache"
+msgstr "使用dnsforwarder UDP查询并缓存"
+
 msgid "DNS Server IP:Port"
 msgstr "DNS服务器 IP:Port"
 
@@ -408,7 +423,7 @@ msgid "WAN Force Proxy IP"
 msgstr "强制走代理的WAN IP"
 
 msgid "LAN Bypassed Host List"
-msgstr "不走代理的局域网 LAN IP"
+msgstr "不走代理的局域网LAN IP"
 
 msgid "LAN Force Proxy Host List"
 msgstr "全局代理的LAN IP"
@@ -468,7 +483,22 @@ msgid "Using incorrect encryption mothod may causes service fail to start"
 msgstr "输入不正确的参数组合可能会导致服务无法启动"
 
 msgid "Game Mode Host List"
-msgstr "增强游戏模式客户端 LAN IP"
+msgstr "增强游戏模式客户端LAN IP"
 
-msgid "Server Count"
-msgstr "服务器节点数"
+msgid "Multi Threads Option"
+msgstr "多线程并发转发"
+
+msgid "Auto Threads"
+msgstr "自动（CPU线程数）"
+
+msgid "1 Thread"
+msgstr "单线程"
+
+msgid "2 Threads"
+msgstr "2 线程"
+
+msgid "4 Threads"
+msgstr "4 线程"
+
+msgid "8 Threads"
+msgstr "8 线程"

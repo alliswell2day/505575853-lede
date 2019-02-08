@@ -16,7 +16,7 @@ config OSCAM_USE_LIBUSB
 
 	config OSCAM_MODULE_CAMD33
 		bool "camd 3.3"
-		default n
+		default y
 
 	config OSCAM_MODULE_CAMD35
 		bool "camd 3.5 UDP"
@@ -134,12 +134,7 @@ config OSCAM_USE_LIBUSB
 		select OSCAM_USE_LIBUSB
 		default y
 
-	config OSCAM_CARDREADER_INTERNAL
-		bool "CARDREADER_INTERNAL"
-		select OSCAM_USE_LIBUSB
-		default y
-
-		config OSCAM_CARDREADER_SC8IN1
+	config OSCAM_CARDREADER_SC8IN1
 		bool "SC8in1"
 		select OSCAM_USE_LIBUSB
 		default y
@@ -153,21 +148,6 @@ config OSCAM_USE_LIBUSB
 		bool "Argolis Smargo Smartreader"
 		select OSCAM_USE_LIBUSB
 		default y
-
-	config OSCAM_CARDREADER_DB2COM
-		bool "Stinger USB Dual DB2COM"
-		select OSCAM_USE_LIBUSB
-		default y
-
-	config OSCAM_CARDREADER_STAPI
-		bool "CARDREADER_STAPI"
-		select OSCAM_USE_LIBUSB
-		default y
-
-	config OSCAM_CARDREADER_STAPI5
-		bool "CARDREADER_STAPI5"
-		select OSCAM_USE_LIBUSB
-		default n
 
 	config OSCAM_CARDREADER_STINGER
 		bool "Stinger USB Dual Smartcard Reader"
@@ -184,10 +164,6 @@ comment "Addons"
 config OSCAM_HAVE_DVBAPI
 	bool "DVB API"
 	default y
-
-config OSCAM_WITH_NEUTRINO
-	bool "Neutrino suppor"
-	default n
 
 config OSCAM_READ_SDT_CHARSETS
 	bool "DVB API read-sdt charsets"
@@ -235,7 +211,7 @@ config OSCAM_CLOCKFIX
 
 config OSCAM_IPV6SUPPORT
 	bool "IPv6 support (experimental)"
-	default y
+	default n
 
 config OSCAM_WEBIF
 	bool "Web Interface"

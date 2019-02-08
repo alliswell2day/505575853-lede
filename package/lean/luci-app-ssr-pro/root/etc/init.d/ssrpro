@@ -80,7 +80,7 @@ start()
 	[ -z "$vt_method" ] && vt_method=table
 	[ -z "$vt_timeout" ] && vt_timeout=60
 	case "$vt_proxy_mode" in
-		M|S|G)
+		M|S|O|G)
 			[ -z "$vt_safe_dns" ] && vt_safe_dns="8.8.8.8"
 			[ -z "$vt_safe_dns_tcp" ] && vt_safe_dns_tcp=1
 			;;
@@ -353,6 +353,10 @@ add_rule()
 		S)
 			iptables -t nat -A shadowsocksr_pre -m set --match-set $vt_np_ipset dst -j RETURN
 			iptables -t nat -I OUTPUT -p tcp -m multiport --dports 80,443 -m set ! --match-set $vt_np_ipset dst -j REDIRECT --to $SS_REDIR_PORT
+			;;
+		O)
+			iptables -t nat -A shadowsocksr_pre -m set ! --match-set $vt_np_ipset dst -j RETURN
+			iptables -t nat -I OUTPUT -p tcp -m multiport --dports 80,443 -m set --match-set $vt_np_ipset dst -j REDIRECT --to $SS_REDIR_PORT
 			;;
 		M)
 			ipset -! create $vt_gfwlist hash:ip maxelem 65536 2>/dev/null

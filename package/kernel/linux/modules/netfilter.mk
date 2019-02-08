@@ -152,7 +152,7 @@ define KernelPackage/nf-flow
 	CONFIG_NETFILTER_INGRESS=y \
 	CONFIG_NF_FLOW_TABLE \
 	CONFIG_NF_FLOW_TABLE_HW
-  DEPENDS:=+kmod-nf-conntrack @!LINUX_3_18 @!LINUX_4_4 @!LINUX_4_9
+  DEPENDS:=+kmod-nf-conntrack @!LINUX_3_18 @!LINUX_4_9
   FILES:= \
 	$(LINUX_DIR)/net/netfilter/nf_flow_table.ko \
 	$(LINUX_DIR)/net/netfilter/nf_flow_table_hw.ko
@@ -467,6 +467,17 @@ endef
 
 $(eval $(call KernelPackage,ipt-raw))
 
+
+define KernelPackage/ipt-raw6
+  TITLE:=Netfilter IPv6 raw table support
+  KCONFIG:=CONFIG_IP6_NF_RAW
+  FILES:=$(LINUX_DIR)/net/ipv6/netfilter/ip6table_raw.ko
+  AUTOLOAD:=$(call AutoProbe,ip6table_raw)
+  $(call AddDepends/ipt,+kmod-ip6tables)
+endef
+
+$(eval $(call KernelPackage,ipt-raw6))
+
 define KernelPackage/ipt-imq
   TITLE:=Intermediate Queueing support
   KCONFIG:= \
@@ -530,19 +541,6 @@ endef
 
 $(eval $(call KernelPackage,ipt-weburl))
 
-
-
-define KernelPackage/ipt-raw6
-  TITLE:=Netfilter IPv6 raw table support
-  KCONFIG:=CONFIG_IP6_NF_RAW
-  FILES:=$(LINUX_DIR)/net/ipv6/netfilter/ip6table_raw.ko
-  AUTOLOAD:=$(call AutoProbe,ip6table_raw)
-  $(call AddDepends/ipt,+kmod-ip6tables)
-endef
-
-$(eval $(call KernelPackage,ipt-raw6))
-
-
 define KernelPackage/ipt-nat6
   TITLE:=IPv6 NAT targets
   KCONFIG:=$(KCONFIG_IPT_NAT6)
@@ -603,7 +601,7 @@ define KernelPackage/nf-nathelper-extra
   KCONFIG:=$(KCONFIG_NF_NATHELPER_EXTRA)
   FILES:=$(foreach mod,$(NF_NATHELPER_EXTRA-m),$(LINUX_DIR)/net/$(mod).ko)
   AUTOLOAD:=$(call AutoProbe,$(notdir $(NF_NATHELPER_EXTRA-m)))
-  DEPENDS:=+kmod-nf-nat +kmod-lib-textsearch
+  DEPENDS:=+kmod-nf-nat +kmod-lib-textsearch +kmod-ipt-raw +LINUX_4_19:kmod-asn1-decoder
 endef
 
 define KernelPackage/nf-nathelper-extra/description
@@ -622,7 +620,6 @@ define KernelPackage/nf-nathelper-extra/description
 endef
 
 $(eval $(call KernelPackage,nf-nathelper-extra))
-
 
 define KernelPackage/ipt-ulog
   TITLE:=Module for user-space packet logging
@@ -1220,7 +1217,7 @@ define KernelPackage/nft-netdev
 	CONFIG_NFT_DUP_NETDEV \
 	CONFIG_NFT_FWD_NETDEV
   FILES:= \
-	$(LINUX_DIR)/net/netfilter/nf_tables_netdev.ko \
+	$(LINUX_DIR)/net/netfilter/nf_tables_netdev.ko@lt4.17 \
 	$(LINUX_DIR)/net/netfilter/nf_dup_netdev.ko \
 	$(LINUX_DIR)/net/netfilter/nft_dup_netdev.ko \
 	$(LINUX_DIR)/net/netfilter/nft_fwd_netdev.ko
@@ -1228,3 +1225,15 @@ define KernelPackage/nft-netdev
 endef
 
 $(eval $(call KernelPackage,nft-netdev))
+
+
+define KernelPackage/nft-fib
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Netfilter nf_tables fib support
+  DEPENDS:=+kmod-nft-core
+  FILES:=$(foreach mod,$(NFT_FIB-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFT_FIB-m)))
+  KCONFIG:=$(KCONFIG_NFT_FIB)
+endef
+
+$(eval $(call KernelPackage,nft-fib))

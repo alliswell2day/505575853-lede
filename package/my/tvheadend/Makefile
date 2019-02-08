@@ -9,16 +9,15 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tvheadend
 PKG_VERSION:=4.3
+PKG_REV=8ff1555
 PKG_RELEASE:=1
 
-PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=d91f71cfbe0016350dbb3853a42ac4b226d8d47b
-# This is stable git version...
-# PKG_SOURCE_VERSION:=1a0262f5870e4fabd6b9c70a7bf2ebe420bc956e
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)
+PKG_SOURCE_VERSION:=$(PKG_REV)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-r$(PKG_REV).tar.gz
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/505575853/tvheadend.git
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_URL:=https://github.com/tvheadend/tvheadend.git
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=LICENSE.md
@@ -27,8 +26,6 @@ PKG_FIXUP:=autoreconf
 
 PKG_USE_MIPS16:=0
 
-SHORT_GIT_VER:=$(shell echo $(PKG_SOURCE_VERSION) | cut -b -7)
-
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
 
@@ -36,7 +33,7 @@ define Package/tvheadend
   SECTION:=multimedia
   CATEGORY:=Multimedia
   TITLE:=Tvheadend is a TV streaming server for Linux
-  DEPENDS:=+libopenssl +librt +zlib +libpcre +libpcre2 +libdvbcsa +TVHEADEND_AVAHI_SUPPORT:libavahi-client $(ICONV_DEPENDS)
+  DEPENDS:=+libopenssl +librt +zlib +libpcre +libpcre2 +TVHEADEND_AVAHI_SUPPORT:libavahi-client $(ICONV_DEPENDS)
   URL:=https://tvheadend.org
   MAINTAINER:=Jan Čermák <jan.cermak@nic.cz>
 endef
@@ -75,16 +72,10 @@ endif
 
 CONFIGURE_ARGS += \
 	--arch=$(ARCH) \
+        --disable-dvbscan \
 	--disable-dbus_1 \
 	--disable-libav \
 	--enable-bundle \
-	--enable-dvben50221 \
-	--enable-tvhcsa \
-	--enable-dvbcsa \
-	--enable-inotify \
-	--enable-epoll \
-	--enable-trace \
-	--nowerror \
         --disable-dvbscan \
         --disable-avahi \
         --disable-hdhomerun_static \
@@ -107,11 +98,10 @@ CONFIGURE_ARGS += \
         --disable-libmfx_static \
         --disable-timeshift
 
-
 define Build/Prepare
 	$(call Build/Prepare/Default)
-	echo 'Tvheadend $(shell echo $(PKG_VERSION)~$(SHORT_GIT_VER)-$(PKG_RELEASE))' \
-	> $(PKG_BUILD_DIR)/debian/changelog
+	echo 'Tvheadend $(shell echo $(PKG_SOURCE_VERSION) | sed "s/^v//")~openwrt' \
+		> $(PKG_BUILD_DIR)/debian/changelog
 endef
 
 define Package/conffiles

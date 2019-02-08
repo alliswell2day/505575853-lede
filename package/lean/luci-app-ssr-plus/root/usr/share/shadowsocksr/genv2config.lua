@@ -1,14 +1,16 @@
-local ucursor = require "luci.model.uci"
+local ucursor = require "luci.model.uci".cursor()
 local json = require "luci.jsonc"
 local server_section = arg[1]
 local proto = arg[2] 
 local local_port = arg[3]
+local socks_port = local_port + 1
+local http_port = local_port + 2
 
 local server = ucursor:get_all("shadowsocksr", server_section)
 
 local v2ray = {
   log = {
-    error = "/var/ssrplus.log",
+    -- error = "/var/ssrplus.log",
     loglevel = "warning"
   },
     -- 传入连接
@@ -24,6 +26,21 @@ local v2ray = {
             destOverride = { "http", "tls" }
         }
     },
+	-- 开启 socks 和 http 代理 
+	inboundDetour = (proto == "tcp") and {
+		{
+			protocol = "socks",
+			port = socks_port,
+			settings = {
+				auth = "noauth",
+				udp = true
+			}
+		},
+		{
+			protocol = "http",
+			port = http_port	
+		}
+	} or nil,
     -- 传出连接
     outbound = {
         protocol = "vmess",
@@ -46,7 +63,7 @@ local v2ray = {
         streamSettings = {
             network = server.transport,
             security = (server.tls == '1') and "tls" or "none",
-            allowInsecure = (server.insecure == "1") and true or false,
+            tlsSettings = {allowInsecure = (server.insecure == "1") and true or false,},
             kcpSettings = (server.transport == "kcp") and {
               mtu = tonumber(server.mtu),
               tti = tonumber(server.tti),
@@ -68,6 +85,13 @@ local v2ray = {
             httpSettings = (server.transport == "h2") and {
                 path = server.h2_path,
                 host = server.h2_host,
+            } or nil,
+            quicSettings = (server.transport == "quic") and {
+                security = server.quic_security,
+                key = server.quic_key,
+                header = {
+                  type = server.quic_guise
+                }
             } or nil
         },
         mux = {
@@ -84,4 +108,4 @@ local v2ray = {
         }
     }
 }
-print(json.stringify(v2ray))
+print(json.stringify(v2ray, 1))

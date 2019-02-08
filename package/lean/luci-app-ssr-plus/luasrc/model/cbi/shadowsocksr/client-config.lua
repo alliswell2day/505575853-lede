@@ -134,7 +134,6 @@ o.description = translate("Using incorrect encryption mothod may causes service 
 o = s:option(Value, "alias", translate("Alias(optional)"))
 
 o = s:option(Value, "server", translate("Server Address"))
-o.datatype = "host"
 o.rmempty = false
 
 o = s:option(Value, "server_port", translate("Server Port"))
@@ -180,8 +179,7 @@ o:depends("type", "ssr")
 
 -- AlterId
 o = s:option(Value, "alter_id", translate("AlterId"))
-o.datatype = "port"
-o.default = 16
+o.default = 100
 o.rmempty = true
 o:depends("type", "v2ray")
 
@@ -276,13 +274,13 @@ o.rmempty = true
 o = s:option(Value, "uplink_capacity", translate("Uplink Capacity"))
 o.datatype = "uinteger"
 o:depends("transport", "kcp")
-o.default = 5
+o.default = 20
 o.rmempty = true
 
 o = s:option(Value, "downlink_capacity", translate("Downlink Capacity"))
 o.datatype = "uinteger"
 o:depends("transport", "kcp")
-o.default = 20
+o.default = 100
 o.rmempty = true
 
 o = s:option(Value, "read_buffer_size", translate("Read Buffer Size"))
@@ -315,7 +313,7 @@ o:depends("type", "v2ray")
 -- [[ Mux ]]--
 o = s:option(Flag, "mux", translate("Mux"))
 o.rmempty = true
-o.default = "0"
+o.default = "1"
 o:depends("type", "v2ray")
 
 o = s:option(Flag, "fast_open", translate("TCP Fast Open"))
@@ -326,7 +324,7 @@ o:depends("type", "ss")
 
 o = s:option(Flag, "switch_enable", translate("Enable Auto Switch"))
 o.rmempty = false
-o.default = "1"
+o.default = "0"
 
 o = s:option(Value, "local_port", translate("Local Port"))
 o.datatype = "port"

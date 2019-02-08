@@ -15,6 +15,8 @@ local gfw_count=0
 local ad_count=0
 local ip_count=0
 local gfwmode=0
+local pdnsd_run=0 
+local dnsforwarder_run=0 
 
 if nixio.fs.access("/etc/dnsmasq.ssr/gfw_list.conf") then
 gfwmode=1		
@@ -90,6 +92,10 @@ if luci.sys.call("pidof pdnsd >/dev/null") == 0 then
 pdnsd_run=1     
 end	
 
+if luci.sys.call("pidof dnsparsing >/dev/null") == 0 then                 
+dnsforwarder_run=1     
+end	
+
 m = SimpleForm("Version")
 m.reset = false
 m.submit = false
@@ -113,6 +119,14 @@ end
 s=m:field(DummyValue,"pdnsd_run",translate("PDNSD"))
 s.rawhtml  = true                                              
 if pdnsd_run == 1 then                             
+s.value =font_blue .. bold_on .. translate("Running") .. bold_off .. font_off
+else             
+s.value = translate("Not Running")
+end 
+
+s=m:field(DummyValue,"dnsforwarder_run",translate("dnsforwarder"))
+s.rawhtml  = true                                              
+if dnsforwarder_run == 1 then                             
 s.value =font_blue .. bold_on .. translate("Running") .. bold_off .. font_off
 else             
 s.value = translate("Not Running")

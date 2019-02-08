@@ -1,16 +1,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mt76
-PKG_RELEASE=2
+PKG_RELEASE=1
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
 
 PKG_SOURCE_URL:=https://github.com/openwrt/mt76
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2018-11-16.1
-PKG_SOURCE_VERSION:=96b3b3d60da10fc64ce56d06e431bf2e3f9a4514
-PKG_MIRROR_HASH:=2b2add0bb87186a280435f864d54a5e43290ba05999a6a088f1ea2cb54b2144f
+PKG_SOURCE_DATE:=2019-01-20
+PKG_SOURCE_VERSION:=fc31457cd99cb85c8cea9329eedc5edd80038f29
+PKG_MIRROR_HASH:=7b42c03c93783c394dff317899bf547be3cfb1add17a23bd8b48ac59a1f13922
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_BUILD_PARALLEL:=1
@@ -80,7 +80,7 @@ endef
 define KernelPackage/mt76x0-common
   $(KernelPackage/mt76-default)
   TITLE:=MediaTek MT76x0 wireless driver common code
-  DEPENDS+=+kmod-mt76x02-common +kmod-mt76x02-usb
+  DEPENDS+=+kmod-mt76x02-common
   HIDDEN:=1
   FILES:=$(PKG_BUILD_DIR)/mt76x0/mt76x0-common.ko
 endef
