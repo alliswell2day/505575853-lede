@@ -62,12 +62,12 @@ end
 function conf.write(self, section, value)
     if value then
         value = value:gsub("\r\n?", "\n")
-        fs.writefile("/tmp/hosts", value)
-        if (luci.sys.call("cmp -s /tmp/hosts /etc/hosts") == 1) then
+        fs.writefile("/tmp/etc/hosts", value)
+        if (luci.sys.call("cmp -s /tmp/etc/hosts /etc/hosts") == 1) then
             fs.writefile("/etc/hosts", value)
             luci.sys.call("/etc/init.d/dnsmasq restart >/dev/null")
         end
-        fs.remove("/tmp/hosts")
+        fs.remove("/tmp/etc/hosts")
     end
 end
 end

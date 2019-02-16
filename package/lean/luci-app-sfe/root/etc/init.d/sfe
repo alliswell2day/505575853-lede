@@ -18,7 +18,7 @@ start_pdnsd() {
 	
 	if [ ! -f /var/dnscache/pdnsd.cache ]; then
 		mkdir -p /var/dnscache
-		echo -ne "pd13\000\000\000\000" > /var/dnscache/pdnsd.cache
+		echo -ne "" > /var/dnscache/pdnsd.cache
 		chown -R nobody.nogroup /var/dnscache
 	fi
 	
@@ -164,8 +164,8 @@ AppendHosts
 BlockIpv6WhenIpv4Exists false
 UseCache true
 CacheSize 1048576
-MemoryCache true
-CacheFile
+MemoryCache false
+CacheFile /var/run/dnscache/dnsforwarder.cache
 IgnoreTTL false
 OverrideTTL -1
 MultipleTTL 1
@@ -189,6 +189,7 @@ EOF
 stop_dnscache() {
 	kill $(pidof dnscache) >/dev/null 2>&1 || kill -9 $(ps | grep dnscache | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 	rm -rf /var/run/dnscache
+	rm -rf /var/dnscache
 	echo "Stop DNS Cache"
 }
 
