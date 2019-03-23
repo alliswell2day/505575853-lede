@@ -4,7 +4,7 @@ msgstr "Content-Type: text/plain; charset=UTF-8\n"
 msgid "oscam"
 msgstr "oscam"
 
-msgid ""<strong><font color=\"green\">Running</font></strong>""
+msgid "<strong><font color=\"green\">Running</font></strong>"
 msgstr "<strong><font color=\"green\">运行</font></strong>"
 
 msgid "<strong><font color=\"red\">Not Running</font></strong>"

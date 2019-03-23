@@ -1,0 +1,4 @@
+
+config clash 'config'
+	option proxy_port '7982'
+	option enabled '0'

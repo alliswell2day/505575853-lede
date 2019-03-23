@@ -11,7 +11,6 @@ uci set fstab.@global[0].anon_mount=1
 uci commit fstab
 
 rm -f /usr/lib/lua/luci/view/admin_status/index/mwan.htm
-rm -f /usr/lib/lua/luci/view/admin_status/index/upnp.htm
 rm -f /usr/lib/lua/luci/view/admin_status/index/ddns.htm
 rm -f /usr/lib/lua/luci/view/admin_status/index/minidlna.htm
 
@@ -26,6 +25,8 @@ sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/mjpg-streamer.lua
 sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/p910nd.lua
 sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/usb_printer.lua
 sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/xunlei.lua
+sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/nfs.lua
+sed -i 's/\"services\"/\"nas\"/g' /usr/lib/lua/luci/controller/cifs.lua
 sed -i 's/\"services\"/\"network\"/g' /usr/lib/lua/luci/controller/nft-qos.lua
 
 sed -i 's/services/nas/g'  /usr/lib/lua/luci/view/minidlna_status.htm
@@ -55,7 +56,7 @@ sed -i '/set wireless.radio${devidx}.disabled/d' /lib/wifi/mac80211.sh
 wifi up
 
 sed -i '/DISTRIB_REVISION/d' /etc/openwrt_release
-echo "DISTRIB_REVISION='R9.x.x By Lean Mod3.0.14 By dz'" >> /etc/openwrt_release
+echo "DISTRIB_REVISION='R9.x.x By Lean Mod3.0.33 By dz'" >> /etc/openwrt_release
 sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
 echo "DISTRIB_DESCRIPTION='OpenWrt '" >> /etc/openwrt_release
 
@@ -65,6 +66,29 @@ echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
 sed -i 's/cbi.submit\"] = true/cbi.submit\"] = \"1\"/g' /usr/lib/lua/luci/dispatcher.lua
 
 /etc/modules-boot.d && ln -s ../modules.d/18-phy-broadcom
+
+/etc/init.d/xl2tpd stop
+/etc/init.d/xl2tpd disable
+/etc/init.d/mysqld stop
+/etc/init.d/mysqld disable
+/etc/init.d/tvheadend stop
+/etc/init.d/tvheadend disable
+/etc/init.d/tvheadend stop
+/etc/init.d/tvheadend disable
+/etc/init.d/php7 stop
+/etc/init.d/php7 disable
+/etc/init.d/php7-fpm stop
+/etc/init.d/php7-fpm disable
+/etc/init.d/nginx stop
+/etc/init.d/nginx disable
+/etc/init.d/pcscd stop
+/etc/init.d/pcscd disable
+/etc/init.d/dnsforwarder stop
+/etc/init.d/dnsforwarder disable
+/etc/init.d/vmtoolsd stop
+/etc/init.d/vmtoolsd disable
+/etc/init.d/watchcat stop
+/etc/init.d/watchcat disable
 
 rm -rf /tmp/luci-modulecache/
 rm -f /tmp/luci-indexcache

@@ -347,7 +347,7 @@ start_dnsforwarder()
 	
 	[ ! -f /usr/sbin/dnsparsing ] && ln /usr/bin/dnsforwarder /usr/sbin/dnsparsing
 	DNSCACHE_CONF=/var/run/dnsparsing/dnsparsing.conf
-	PID_PATH=/var/run/dnsparsing/
+	PID_PATH=/var/run/dnsparsing
 	PID_FILE=dns.pid
 	mkdir -p $PID_PATH
 	pid=`ps | awk '$5 ~ /\[dnsparsing\]/ {print $1}'`
@@ -419,6 +419,7 @@ add_cron()
   sed -i '/up-gfwlist.sh/d' $CRON_FILE
 	sed -i '/v2ray_watchdog.log/d' $CRON_FILE
 	if [ $cron_mode -eq 1 ]; then
+		echo '0 4 * * * /etc/v2ray/v2ray_update.sh > /tmp/gfwupdate.log 2>&1' >> $CRON_FILE
 		echo '0 5 * * * /etc/v2ray/up-gfwlist.sh > /tmp/gfwupdate.log 2>&1' >> $CRON_FILE
 	fi
 	echo '0 */1 * * * /etc/v2ray/v2ray-watchdog >> /tmp/v2ray_watchdog.log 2>&1' >> $CRON_FILE
@@ -428,6 +429,7 @@ add_cron()
 
 del_cron()
 {
+	sed -i '/v2ray_update.sh/d' $CRON_FILE
 	sed -i '/up-gfwlist.sh/d' $CRON_FILE
 	sed -i '/v2ray_watchdog.log/d' $CRON_FILE
 	/etc/init.d/cron restart

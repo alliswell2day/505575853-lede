@@ -55,15 +55,18 @@ o.rmempty = false
 o = s:option(ListValue, "run_mode", translate("Running Mode"))
 o:value("gfw", translate("GFW List Mode"))
 o:value("router", translate("IP Route Mode"))
-o:value("oversea", translate("Oversea Mode"))
+o:value("routers", translate("Oversea IP Route Mode"))
+o:value("oversea", translate("Oversea GFW List Mode"))
 o.default = gfw
 
 o = s:option(ListValue, "pdnsd_enable", translate("Resolve Dns Mode"))
 o:value("0", translate("Use Local DNS Service listen port 5335"))
 o:value("1", translate("Use Pdnsd tcp query and cache"))
 o:value("2", translate("Use Pdnsd udp query and cache"))
+if nixio.fs.access("/usr/bin/dnsforwarder") then
 o:value("3", translate("Use dnsforwarder tcp query and cache"))
 o:value("4", translate("Use dnsforwarder udp query and cache"))
+end
 o.default = 1
 
 o = s:option(ListValue, "tunnel_forward", translate("Anti-pollution DNS Server"))
@@ -84,5 +87,20 @@ o:depends("pdnsd_enable", "1")
 o:depends("pdnsd_enable", "2")
 o:depends("pdnsd_enable", "3")
 o:depends("pdnsd_enable", "4")
+
+aaaa = s:option(Flag, "filter_aaaa", translate("Filter AAAA"))
+aaaa.default = 0
+aaaa.rmempty = false
+aaaa.description = translate("Dnsmasq rejects IPv6 parsing and optimizes domestic complex dual-stack network")
+
+o = s:option(Flag, "bt", translate("Kill BT"))
+o.default = 0
+o.rmempty = false
+aaaa.description = translate("Prohibit downloading tool ports through proxy")
+
+o = s:option(Value, "bt_port", translate("BT Port"))
+o.default = "51413,8437,12551"
+o.rmempty = true
+o:depends("bt", "1")
 
 return m

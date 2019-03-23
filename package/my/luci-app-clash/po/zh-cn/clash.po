@@ -1,0 +1,59 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "clash"
+msgstr "clash"
+
+msgid "<strong><font color=\"green\">Running</font></strong>"
+msgstr "<strong><font color=\"green\">运行</font></strong>"
+
+msgid "<strong><font color=\"red\">Not Running</font></strong>"
+msgstr "<strong><font color=\"red\">未运行</font></strong>"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "General Settings"
+msgstr "基本设置"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Enable or disable clash server"
+msgstr "启用或禁用clash服务"
+
+msgid "clash conf"
+msgstr "clash配置文件"
+
+msgid "clash server"
+msgstr "clash服务配置"
+
+msgid "clash user"
+msgstr "clash用户配置"
+
+msgid "Server Address"
+msgstr "服务器地址"
+
+msgid "Server Port"
+msgstr "服务器端口"
+
+msgid "* Proxy Port"
+msgstr "* 转发端口"
+
+msgid "SOCKS5 Port"
+msgstr "SOCK5代理端口"
+
+msgid "* DNS Server"
+msgstr "* 代理dns服务器"
+
+msgid "The following parameters are used to set the firewall forwarding rules,Need to be consistent with the clash configuration file"
+msgstr "以下参数用于设置防火墙转发规则,需要与clash配置文件一致"
+
+msgid "If you have only one CLASH server IP and can choose different ports, set this bar"
+msgstr "如果你只有一个 CLASH服务器的 ip，却能选择不同端口,就设置此条"
+
+msgid "Remote CLASH servers provide service ports. If you have multiple IPS available, but the ports are identical, set this"
+msgstr "远程 CLASH 服务器提供服务的端口，如果你有多个 ip 可用,但端口一致，就设置这个"
+
+msgid "Local proxy port"
+msgstr "本地代理端口"

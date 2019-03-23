@@ -224,10 +224,16 @@ msgid "IP Route Mode"
 msgstr "绕过中国大陆IP模式"
 
 msgid "GFW List Mode"
-msgstr "GFW列表模式"
+msgstr "GFW域名列表模式"
 
 msgid "Oversea Mode"
 msgstr "海外用户回国模式"
+
+msgid "Oversea IP Route Mode"
+msgstr "海外用户回国IP路由模式"
+
+msgid "Oversea GFW List Mode"
+msgstr "海外用户回国域名列表模式"
 
 msgid "Router Proxy"
 msgstr "路由器访问控制"
@@ -502,3 +508,15 @@ msgstr "4 线程"
 
 msgid "8 Threads"
 msgstr "8 线程"
+
+msgid "Dnsmasq rejects IPv6 parsing and optimizes domestic complex dual-stack network"
+msgstr "dnsmasq不返回ipv6解析结果,优化国内复杂双栈网络"
+
+msgid "Kill BT"
+msgstr "禁止BT"
+
+msgid "Prohibit downloading tool ports through proxy"
+msgstr "禁止BT端口走代理"
+
+msgid "BT Port"
+msgstr "BT端口"

@@ -1,0 +1,130 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2009-2010 OpenWrt.org
+
+START=99
+STOP=15
+
+CLASH="/usr/bin/clash"
+CLASH_CONFIG="/etc/clash"
+
+add_rule() {
+	server_port=$(uci get clash.config.server_port 2>/dev/null)
+	server=$(uci get clash.config.server 2>/dev/null)
+	proxy_port=$(uci get clash.config.proxy_port 2>/dev/null)
+	socks5_port=$(uci get clash.config.socks5_port 2>/dev/null)
+
+	# 设置 iptables
+	iptables -t nat -N CLASH
+
+	# 8080 是 ss 代理服务器的端口，即远程 CLASH 服务器提供服务的端口，如果你有多个 ip 可用,但端口一致，就设置这个
+	if [ $server_port -ne 0 ]; then
+		iptables -t nat -A CLASH -p tcp --dport $server_port -j RETURN
+	fi
+
+	# 192.192.192.192 是 CLASH 代理服务器的 ip, 如果你只有一个 CLASH服务器的 ip，却能选择不同端口,就设置此条
+	if [ $server -ne 0 ]; then
+		iptables -t nat -A CLASH -d $server -j RETURN
+	fi
+
+	if [ $socks5_port -ne 0 ]; then
+		iptables -t nat -A CLASH -p tcp \
+			-j REDIRECT --to-ports $socks5_port 2>/dev/null || {
+			loger 3 "Can't redirect, please check the iptables."
+			exit 1
+		}
+	fi
+
+	# 保留地址、私有地址、回环地址 不走代理
+	iptables -t nat -A CLASH -d 0.0.0.0/8 -j RETURN
+	iptables -t nat -A CLASH -d 10.0.0.0/8 -j RETURN
+	iptables -t nat -A CLASH -d 127.0.0.0/8 -j RETURN
+	iptables -t nat -A CLASH -d 169.254.0.0/16 -j RETURN
+	iptables -t nat -A CLASH -d 172.16.0.0/12 -j RETURN
+	iptables -t nat -A CLASH -d 192.168.0.0/16 -j RETURN
+	iptables -t nat -A CLASH -d 224.0.0.0/4 -j RETURN
+	iptables -t nat -A CLASH -d 240.0.0.0/4 -j RETURN
+
+	# 7892是clash_redir端口
+	iptables -t nat -A CLASH -p tcp -j REDIRECT --to-ports $proxy_port
+
+	iptables -t nat -A PREROUTING -p tcp -j CLASH
+
+}
+
+del_rule() {
+	# 清除 iptables
+	if iptables -t nat -L -n --line-numbers | grep CLASH >/dev/null; then
+		iptables -t nat -D PREROUTING -p tcp -j CLASH
+		iptables -t nat -F CLASH
+		iptables -t nat -X CLASH
+	fi
+
+}	
+
+change_dns() {
+	local dns_server=$(uci get clash.config.dns_server 2>/dev/null)
+	#修改dnsmasq
+	uci delete dhcp.@dnsmasq[0].server
+	uci add_list dhcp.@dnsmasq[0].server=$dns_server
+	uci delete dhcp.@dnsmasq[0].resolvfile
+	uci set dhcp.@dnsmasq[0].noresolv=1
+	uci commit dhcp
+	/etc/init.d/dnsmasq restart > /dev/null 2>&1
+
+}
+
+revert_dns() {
+	local dns_server=$(uci get clash.config.dns_server 2>/dev/null)
+	local dns_serve1=$(uci get dhcp.@dnsmasq[0].server 2>/dev/null)
+	#还原dnsmasq修改
+	if [ $dns_serve1 = $dns_server ]; then
+		uci delete dhcp.@dnsmasq[0].server
+		uci delete dhcp.@dnsmasq[0].resolvfile
+		uci delete dhcp.@dnsmasq[0].noresolv
+		uci commit dhcp
+		/etc/init.d/dnsmasq restart > /dev/null 2>&1
+	fi
+}
+
+start() {
+	enable=$(uci get clash.config.enabled 2>/dev/null)
+	# 启动 Clash
+	if [ $enable -eq 1 ]; then
+	echo "enable"
+	$CLASH -d "$CLASH_CONFIG" > /dev/null 2>&1 &
+		sleep 3
+		if pidof clash>/dev/null; then
+			add_rule
+			change_dns
+			nohup /usr/share/clash/clash-watchdog.sh > /var/log/clash.file 2>&1 &
+			if [ usr/bin/clash ] ;then
+				[ -z "$(grep -w "/usr/share/clash/clash_update.sh" /etc/crontabs/root)" ] && echo "0 4 * * * /usr/share/clash/clash_update.sh" >> /etc/crontabs/root
+				crontab /etc/crontabs/root
+			fi
+		else
+		echo "clash无法启动"
+		fi
+	else
+		stop
+	fi
+}
+
+stop() {
+	del_rule
+	revert_dns
+	# 关闭 进程守护
+	kill -9 $(ps | grep clash-watchdog.sh | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+	# 关闭 Clash
+	kill $(pidof clash) >/dev/null 2>&1 || kill -9 $(ps | grep clash | grep -v grep | awk '{print $1}') >/dev/null 2>&1
+	sed -i '/clash_update/d' /etc/crontabs/root
+	/etc/init.d/cron restart
+	echo "stop!"
+
+}
+
+restart(){
+	stop
+	sleep 2
+	start
+	echo "restarted."
+}

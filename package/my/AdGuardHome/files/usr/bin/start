@@ -1,0 +1,55 @@
+bind_host: 0.0.0.0
+bind_port: 3000
+auth_name: ""
+auth_pass: ""
+language: zh-tw
+dns:
+  port: 5333
+  protection_enabled: true
+  filtering_enabled: true
+  blocked_response_ttl: 10
+  querylog_enabled: true
+  ratelimit: 20
+  ratelimit_whitelist: []
+  refuse_any: true
+  bootstrap_dns: 8.8.8.8:53
+  parental_sensitivity: 13
+  parental_enabled: true
+  safesearch_enabled: false
+  safebrowsing_enabled: false
+  upstream_dns:
+  - 223.5.5.5
+  - 223.6.6.6
+  - 114.114.114.114
+  - 114.114.115.115
+filters:
+- enabled: true
+  url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+  name: AdGuard Simplified Domain Names filter
+  last_updated: 2019-02-25T07:20:19.236386712Z
+  id: 1551023485
+- enabled: true
+  url: https://adaway.org/hosts.txt
+  name: AdAway
+  last_updated: 2019-02-25T07:20:20.70777853Z
+  id: 1551023486
+- enabled: true
+  url: https://hosts-file.net/ad_servers.txt
+  name: hpHosts - Ad and Tracking servers only
+  last_updated: 2019-02-25T07:20:24.618179452Z
+  id: 1551023487
+- enabled: true
+  url: http://www.malwaredomainlist.com/hostslist/hosts.txt
+  name: MalwareDomainList.com Hosts List
+  last_updated: 2019-02-25T07:20:31.219079369Z
+  id: 1551023488
+user_rules: []
+dhcp:
+  enabled: false
+  interface_name: ""
+  gateway_ip: ""
+  subnet_mask: ""
+  range_start: ""
+  range_end: ""
+  lease_duration: 0
+schema_version: 2

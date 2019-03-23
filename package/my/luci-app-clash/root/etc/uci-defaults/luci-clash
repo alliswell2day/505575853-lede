@@ -1,0 +1,14 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@clash[-1]
+	add ucitrack clash
+	set ucitrack.@clash[-1].init=clash
+	commit ucitrack
+EOF
+
+/etc/init.d/clash stop
+/etc/init.d/clash disable
+
+rm -f /tmp/luci-indexcache
+exit 0
