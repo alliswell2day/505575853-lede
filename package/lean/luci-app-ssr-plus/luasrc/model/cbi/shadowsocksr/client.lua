@@ -96,7 +96,7 @@ aaaa.description = translate("Dnsmasq rejects IPv6 parsing and optimizes domesti
 o = s:option(Flag, "bt", translate("Kill BT"))
 o.default = 0
 o.rmempty = false
-aaaa.description = translate("Prohibit downloading tool ports through proxy")
+o.description = translate("Prohibit downloading tool ports through proxy")
 
 o = s:option(Value, "bt_port", translate("BT Port"))
 o.default = "51413,8437,12551"
