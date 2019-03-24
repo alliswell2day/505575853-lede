@@ -1,3 +1,8 @@
+local trport = 3000
+local button = ""
+if luci.sys.call("pidof AdGuardHome >/dev/null") == 0 then
+	button = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type=\"button\" value=\" " .. translate("Open Web Interface") .. " \" onclick=\"window.open('http://'+window.location.hostname+':" .. trport .. "')\"/>"
+end
 
 m = Map("sfe")
 m.title	= translate("Turbo ACC Acceleration Settings")
@@ -48,7 +53,7 @@ o.rmempty = false
 o.description = translate("dnsmasq killqqad")
 o:depends("dns", 1)
 
-o = s:option(ListValue, "dnscache_enable", translate("Resolve Dns Mode"), translate("AdGuardHome After setting up, shut down DNS acceleration normally and save configuration file"))
+o = s:option(ListValue, "dnscache_enable", translate("Resolve Dns Mode"), translate("AdGuardHome After setting up, shut down DNS acceleration normally and save configuration file") .. button)
 o:value("1", translate("Use Pdnsd query and cache"))
 o:value("2", translate("Use dnsforwarder query and cache"))
 o:value("3", translate("Use AdGuardHome query and cache"))
