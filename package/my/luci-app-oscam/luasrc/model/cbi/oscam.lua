@@ -4,7 +4,7 @@ local sys = require("luci.sys")
 local util = require("luci.util")
 local fs = require("nixio.fs")
 
-local trport = 9888
+local trport = 8888
 local button = ""
 
 if luci.sys.call("pidof oscam >/dev/null") == 0 then
