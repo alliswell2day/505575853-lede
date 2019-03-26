@@ -2,7 +2,7 @@ bind_host: 0.0.0.0
 bind_port: 3000
 auth_name: AdGuardHome
 auth_pass: AdGuardHome
-language: zh-tw
+language: zh-cn
 dns:
   bind_host: 0.0.0.0
   port: 5333

@@ -60,6 +60,7 @@ define Build/Configure
 endef
 
 define Build/Compile
+	chmod +x $(PKG_BUILD_DIR)/frpc && upx --ultra-brute $(PKG_BUILD_DIR)/frpc
 endef
 
 define Package/$(PKG_NAME)/install

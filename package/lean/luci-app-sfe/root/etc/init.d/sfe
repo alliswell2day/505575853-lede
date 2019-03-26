@@ -195,111 +195,23 @@ stop_dnscache() {
 	kill $(pidof dnscache) >/dev/null 2>&1 || kill -9 $(ps | grep dnscache | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 	rm -rf /var/run/dnscache
 	rm -rf /var/dnscache
-	revert_dnsmasq
 	echo "Stop DNS Cache"
+
 }
 
 change_dns() {
-	hosts=$(uci get sfe.config.hosts 2>/dev/null)
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts01 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts02 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts03 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts04 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts05 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts06 >/dev/null 2>&1
  	uci delete dhcp.@dnsmasq[0].server >/dev/null 2>&1
 	uci add_list dhcp.@dnsmasq[0].server=127.0.0.1#5333
 	uci set dhcp.@dnsmasq[0].noresolv=1
-	if [ $hosts -eq 1 ];  then
-	uci add_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts01 >/dev/null 2>&1
-	uci add_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts02 >/dev/null 2>&1
-	uci add_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts03 >/dev/null 2>&1
-	uci add_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts04 >/dev/null 2>&1
-	uci add_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts05 >/dev/null 2>&1
-	uci add_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts06 >/dev/null 2>&1
-	fi
 	uci commit dhcp
+
 }
 
 revert_dns() {
-	dns=$(uci get sfe.config.dns 2>/dev/null)
-	hosts=$(uci get sfe.config.hosts 2>/dev/null)
 	uci del_list dhcp.@dnsmasq[0].server=127.0.0.1#5333 >/dev/null 2>&1
 	uci set dhcp.@dnsmasq[0].resolvfile=/tmp/resolv.conf.auto
 	uci set dhcp.@dnsmasq[0].noresolv=0
-	if [ $dns -ne 1 ] || [ $hosts -ne 1 ];  then
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts01 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts02 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts03 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts04 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts05 >/dev/null 2>&1
-	uci del_list dhcp.@dnsmasq[0].addnhosts=/var/hostslist/hosts06 >/dev/null 2>&1
-	fi
 	uci commit dhcp
-}
-
-change_dnsmasq() {
-	hosts=$(uci get sfe.config.hosts 2>/dev/null)
-	if [ $hosts -eq 1 ];  then
-		if [ ! -d "/var/hostslist" ];  then
-			cp -a /etc/hostslist /var
-		fi
-		ss=`ps -w  | grep ss-redir |grep -v grep| wc -l`
-		ssr=`ps -w  | grep ssr-redir |grep -v grep| wc -l`
-		v2ray=`ps -w  | grep v2ray |grep -v grep| wc -l`
-		if  [ $v2ray -gt 0 ] || [ $ss -gt 0 ] || [ $ssr -gt 0 ];  then
-			if [ -f "/var/dnsmasq.d/dnsmasq-ssr.conf" ];  then
-			cp -a /etc/dnsmasq.ad/ad01.conf /etc/dnsmasq.ssr/ad01.conf 
-			cp -a /etc/dnsmasq.ad/ad02.conf /etc/dnsmasq.ssr/ad02.conf
-			cp -a /etc/dnsmasq.ad/ad03.conf /etc/dnsmasq.ssr/ad03.conf
-			cp -a /etc/dnsmasq.ad/ad04.conf /etc/dnsmasq.ssr/ad04.conf
-			fi
-
-			if [ -f "/var/dnsmasq.d/01-pollution.conf" ];  then
-			cp -a /etc/dnsmasq.ad/ad01.conf /var/dnsmasq.d/ad01.conf 
-			cp -a /etc/dnsmasq.ad/ad02.conf /var/dnsmasq.d/ad02.conf
-			cp -a /etc/dnsmasq.ad/ad03.conf /var/dnsmasq.d/ad03.conf
-			cp -a /etc/dnsmasq.ad/ad04.conf /var/dnsmasq.d/ad04.conf
-			fi
-
-			if [ -f "/var/etc/dnsmasq-go.d/01-pollution.conf" ];  then
-			cp -a /etc/dnsmasq.ad/ad01.conf /var/etc/dnsmasq-go.d/ad01.conf
-			cp -a /etc/dnsmasq.ad/ad02.conf /var/etc/dnsmasq-go.d/ad02.conf
-			cp -a /etc/dnsmasq.ad/ad03.conf /var/etc/dnsmasq-go.d/ad03.conf
-			cp -a /etc/dnsmasq.ad/ad04.conf /var/etc/dnsmasq-go.d/ad04.conf
-			fi
-		else
-			mkdir -p /var/dnsmasq.d
-			cp -a /etc/dnsmasq.ad/ad01.conf /var/dnsmasq.d/ad01.conf
-			cp -a /etc/dnsmasq.ad/ad02.conf /var/dnsmasq.d/ad02.conf
-			cp -a /etc/dnsmasq.ad/ad03.conf /var/dnsmasq.d/ad03.conf
-			cp -a /etc/dnsmasq.ad/ad04.conf /var/dnsmasq.d/ad04.conf
-		fi
-		/etc/init.d/dnsmasq restart
-	fi
-
-}
-
-revert_dnsmasq() {
-	dns=$(uci get sfe.config.dns 2>/dev/null)
-	hosts=$(uci get sfe.config.hosts 2>/dev/null)
-	if [ $dns -ne 1 ] || [ $hosts -ne 1 ];  then
-		rm -rf /var/hostslist
-		rm -rf /etc/dnsmasq.ssr/ad01.conf
-		rm -rf /etc/dnsmasq.ssr/ad02.conf
-		rm -rf /etc/dnsmasq.ssr/ad03.conf
-		rm -rf /tmp/dnsmasq.d/ad01.conf
-		rm -rf /tmp/dnsmasq.d/ad02.conf
-		rm -rf /tmp/dnsmasq.d/ad03.conf
-		rm -rf /var/etc/dnsmasq-go.d/ad01.conf
-		rm -rf /var/etc/dnsmasq-go.d/ad02.conf
-		rm -rf /var/etc/dnsmasq-go.d/ad03.conf
-		rm -rf /var/dnsmasq.d/ad01.conf
-		rm -rf /var/dnsmasq.d/ad02.conf
-		rm -rf /var/dnsmasq.d/ad03.conf
-		rm -rf /var/dnsmasq.d/ad04.conf
-		/etc/init.d/dnsmasq restart
-	fi
 
 }
 
@@ -348,15 +260,10 @@ start_service() {
 			AdGuardHome -c /etc/AdGuardHome/AdGuardHome.yaml -w /etc/AdGuardHome >/dev/null 2>&1 &
 		fi
 		change_dns
-		change_dnsmasq
-		sed -i '/dnscache-watchdog.sh/d' /etc/crontabs/root
-		echo '00 3 * * * /usr/share/dnscache/dnscache-watchdog.sh' >> /etc/crontabs/root
 		nohup /usr/share/dnscache/dnscache-while.sh > /var/log/dnscache.file 2>&1 &
 	else
 		stop_dnscache
 		revert_dns
-		sed -i '/dnscache-watchdog.sh/d' /etc/crontabs/root
-		/etc/init.d/cron restart
 		kill -9 $(ps | grep dnscache-while.sh | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 	fi
   
@@ -376,8 +283,6 @@ stop_service(){
     [ $enable -ne 1 ] && rmmod fast_classifier >/dev/null 2>&1 
 	stop_dnscache
     revert_dns
-	sed -i '/dnscache-watchdog.sh/d' /etc/crontabs/root
-	/etc/init.d/cron restart
 	kill -9 $(ps | grep dnscache-while.sh | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 	if [ "$DNSMASQ_RESTART" = N ]; then
 		/etc/init.d/dnsmasq restart

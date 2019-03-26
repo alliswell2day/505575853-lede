@@ -53,6 +53,7 @@ define Build/Configure
 endef
 
 define Build/Compile
+	chmod +x $(PKG_BUILD_DIR)/client_linux_$(PKG_ARCH_KCPTUN) && upx --ultra-brute $(PKG_BUILD_DIR)/client_linux_$(PKG_ARCH_KCPTUN)
 endef
 
 define Package/$(PKG_NAME)/install

@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=AdGuardHome
-PKG_VERSION:=v0.93
+PKG_VERSION:=v0.94
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=AdGuardHome
-	DEPENDS:=+ca-certificates 
+	DEPENDS:=
 	URL:=https://github.com/AdguardTeam/AdGuardHome/releases
 endef
 
@@ -27,9 +27,20 @@ endef
 ifeq ($(ARCH),x86_64)
 	PKG_ARCH_AdGuardHome:=linux_amd64
 endif
-
 ifeq ($(ARCH),i386)
 	PKG_ARCH_AdGuardHome:=linux_386
+endif
+ifeq ($(ARCH),mipsel)
+	PKG_ARCH_AdGuardHome:=linux_mipsle
+endif
+ifeq ($(ARCH),mips)
+	PKG_ARCH_AdGuardHome:=linux_mips
+endif
+ifeq ($(ARCH),arm)
+	PKG_ARCH_AdGuardHome:=linux_arm
+endif
+ifeq ($(ARCH),aarch64)
+	PKG_ARCH_AdGuardHome:=linux_amd64
 endif
 
 define Build/Prepare

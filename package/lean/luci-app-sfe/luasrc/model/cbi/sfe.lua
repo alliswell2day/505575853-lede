@@ -47,12 +47,6 @@ dns.default = 0
 dns.rmempty = false
 dns.description = translate("Enable DNS Cache Acceleration and anti ISP DNS pollution")
 
-o = s:option(Flag, "hosts", translate("Enable dnsmasq killqqad"))
-o.default = 1
-o.rmempty = false
-o.description = translate("dnsmasq killqqad")
-o:depends("dns", 1)
-
 o = s:option(ListValue, "dnscache_enable", translate("Resolve Dns Mode"), translate("AdGuardHome After setting up, shut down DNS acceleration normally and save configuration file") .. button)
 o:value("1", translate("Use Pdnsd query and cache"))
 o:value("2", translate("Use dnsforwarder query and cache"))
